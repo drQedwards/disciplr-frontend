@@ -10,6 +10,7 @@ import {
   clearSession,
 } from "../sessionBoundary";
 import { parseServerPayload, validate } from "../validateMiddleware";
+import { APP_EXPECTED_NETWORK } from "../../utils/networkMismatch";
 
 const VALID_ADDR = "G" + "A".repeat(55);
 
@@ -47,7 +48,8 @@ describe("sessionBoundary", () => {
   });
 
   it("assertConnectedSession throws WRONG_NETWORK for a mismatched live session", () => {
-    __setSessionForTests({ address: VALID_ADDR, network: "PUBLIC" });
+    const mismatched = APP_EXPECTED_NETWORK === "TESTNET" ? "PUBLIC" : "TESTNET";
+    __setSessionForTests({ address: VALID_ADDR, network: mismatched });
     try {
       assertConnectedSession();
       throw new Error("expected throw");

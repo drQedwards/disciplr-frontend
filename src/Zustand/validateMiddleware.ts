@@ -86,6 +86,8 @@ export const validate = (<T>(
       return (set as SetState)(sanitized, replace, ...extra);
     }) as typeof set;
 
+    // Gate direct store.setState calls the same way as internal `set`.
+    api.setState = guardedSet as typeof api.setState;
     return config(guardedSet, get, api);
   };
 }) as Validate;
