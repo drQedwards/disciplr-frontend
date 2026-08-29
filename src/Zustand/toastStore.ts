@@ -55,11 +55,26 @@ function nextId(): string {
   return `toast-${Date.now().toString(36)}-${_idCounter}`;
 }
 
+/** Strip C0 control chars except tab / LF / CR without a control-character regex. */
+function stripControlChars(value: string): string {
+  let out = "";
+  for (let i = 0; i < value.length; i += 1) {
+    const code = value.charCodeAt(i);
+    const forbidden =
+      (code >= 0 && code <= 8) ||
+      code === 11 ||
+      code === 12 ||
+      (code >= 14 && code <= 31);
+    if (!forbidden) out += value[i];
+  }
+  return out;
+}
+
 export function sanitizeToastMessage(value: unknown): string {
   if (typeof value !== "string") {
     throw new BoundaryError("TAMPERED_INPUT", "Toast message must be a string.");
   }
-  const trimmed = value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").trim();
+  const trimmed = stripControlChars(value).trim();
   if (trimmed.length === 0) {
     throw new BoundaryError("TAMPERED_INPUT", "Toast message must not be empty.");
   }
